@@ -48,6 +48,56 @@ def cerrar_secundaria(win):
     win.destroy()
 
 """
+ANÁLISIS DE NÚMEROS
+"""
+def contenido_analisis(frame):
+#Muestra todos los pares de divisores de el número ingresado
+
+    def encontrar_pares(n, a=1, resultado=None):
+    #Prueba cada divisor 'a' desde 1 hasta n. Si a divide a n, guarda el par (a, n//a) y se evitan duplicados con a <= b
+        if resultado is None:
+            resultado = []
+        if a > n:
+            return resultado
+        if n % a == 0:
+            b = n // a
+            if a <= b:
+                resultado.append((a, b))
+        return encontrar_pares(n, a + 1, resultado)
+
+    def mostrar_pares(pares, i):
+    #Se ejecuta la recursividad y inserta cada par en el widget de texto uno por uno
+        if i >= len(pares):
+            return
+        a, b = pares[i]
+        texto_resultado.insert("end", f"  ({a},  {b})\n")
+        mostrar_pares(pares, i + 1)
+
+    def calcular():
+    #Se valida el número que entra y llama a encontrar_pares para mostrar el resultado
+        texto_resultado.config(state="normal")
+        texto_resultado.delete("1.0", "end")
+
+        entrada = entry_numero.get().strip()
+
+        #Se verifica que sea un número entero válido
+        if not entrada.lstrip("-").isdigit():
+            texto_resultado.insert("end", "¡Error! Debes ingresar un número entero positivo.")
+            texto_resultado.config(state="disabled")
+            return
+
+        n = int(entrada)
+        if n <= 0:
+            texto_resultado.insert("end", "¡Error! Debes ingresar un número entero positivo.")
+            texto_resultado.config(state="disabled")
+            return
+
+        pares = encontrar_pares(n)
+        texto_resultado.insert("end", f"Los pares de {n} son:\n\n")
+        mostrar_pares(pares, 0)
+        texto_resultado.config(state="disabled")
+
+"""
 VENTANA PRINCIPAL
 """
 ventana = tk.Tk()
