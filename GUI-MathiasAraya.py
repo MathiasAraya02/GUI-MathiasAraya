@@ -121,6 +121,57 @@ def contenido_analisis(frame):
     texto_resultado.pack(fill="both", expand=True)
     scrollbar.config(command=texto_resultado.yview)
 
+"""
+FICHA PERSONAL
+"""
+def contenido_ficha(frame):
+#Se muestra la información sobre mi, utilizando pygame para el audio de la cancion y una scrollbar para poder ver toda la info
+
+    #Se le agrega el scrollbar al canvas para poder acceder a toda la información
+    canvas_scroll = tk.Canvas(frame, bg="#2c2c2c", highlightthickness=0)
+    scrollbar = tk.Scrollbar(frame, orient="vertical", command=canvas_scroll.yview)
+    canvas_scroll.configure(yscrollcommand=scrollbar.set)
+    scrollbar.pack(side="right", fill="y")
+    canvas_scroll.pack(side="left", fill="both", expand=True)
+    interior = tk.Frame(canvas_scroll, bg="#2c2c2c")
+    ventana_interior = canvas_scroll.create_window((0, 0), window=interior, anchor="nw")
+
+    def ajustar_scroll(event):
+    #Hacer que la scrollbar siga creciendo si se añaden mas cosas a la ventana
+        canvas_scroll.configure(scrollregion=canvas_scroll.bbox("all"))
+
+    def ajustar_ancho(event):
+    #Hacer que el ancho de la ventana se mantenga y se aproveche hacia abajo el espacio
+        canvas_scroll.itemconfig(ventana_interior, width=event.width)
+
+    interior.bind("<Configure>", ajustar_scroll)
+    canvas_scroll.bind("<Configure>", ajustar_ancho)
+
+    BG      = "#2c2c2c"
+    COLOR_T = "#6fbfe2"  #Color para los títulos
+    COLOR_V = "white"    #Color para los valores
+
+    def seccion(texto):
+    #Se crea el encabezado de la sección
+        tk.Label(interior, text=texto, font=("Arial", 12, "bold"), bg=BG, fg=COLOR_T, anchor="w").pack(fill="x", pady=(14, 2), padx=6)
+
+    def campo(etiqueta, valor):
+    #Muestra una etiqueta y su valor juntos en la misma línea
+        f = tk.Frame(interior, bg=BG)
+        f.pack(fill="x", padx=10, pady=2)
+        tk.Label(f, text=f"{etiqueta}:", font=("Arial", 10, "bold"), bg=BG, fg=COLOR_T, width=10, anchor="w").pack(side="left")
+        tk.Label(f, text=valor, font=("Arial", 10), bg=BG, fg=COLOR_V, anchor="w", wraplength=400, justify="left").pack(side="left")
+
+    def cargar_imagen(ruta, ancho, alto):
+    #Carga una imagen para que salga en la ficha
+        img_raw = tk.PhotoImage(file=ruta)
+        fx = max(1, img_raw.width() // ancho)
+        fy = max(1, img_raw.height() // alto)
+        img_scaled = img_raw.subsample(max(fx, fy, 1))
+        lbl = tk.Label(interior, image=img_scaled, bg=BG)
+        lbl.image = img_scaled  #Para evitar que la imagen no se borre
+        lbl.pack(pady=6)
+
 #Funciones de acceso desde la ventana principal
 def analisis_de_números():
     abrir_ventana_secundaria("Análisis de Números", contenido_analisis)
