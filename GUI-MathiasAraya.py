@@ -97,6 +97,34 @@ def contenido_analisis(frame):
         mostrar_pares(pares, 0)
         texto_resultado.config(state="disabled")
 
+    #Widgets de Analisis de números
+    tk.Label(frame, text="¿Quieres saber los pares de un número?", font=("Arial", 16, "bold"), bg="#2c2c2c", fg="white").pack(pady=(10, 4))
+    tk.Label(frame, text="Ingresa un número entero positivo en el espacio de texto.", font=("Arial", 10), bg="#2c2c2c", fg="#aaaaaa", justify="center").pack(pady=(0, 12))
+
+    frame_entrada = tk.Frame(frame, bg="#2c2c2c")
+    frame_entrada.pack()
+
+    entry_numero = tk.Entry(frame_entrada, font=("Arial", 13), width=10, justify="center", bg="#3d3d3d", fg="white", insertbackground="white", relief="flat")
+    entry_numero.pack(side="left", padx=(0, 10))
+    entry_numero.bind("<Return>", lambda e: calcular())  # Permite calcular con Enter
+
+    tk.Button(frame_entrada, text="Calcular", command=calcular, font=("Arial", 11, "bold"), padx=12, cursor="hand2").pack(side="left")
+
+    #Lugar donde sale el resultado del número ingresado
+    frame_resultado = tk.Frame(frame, bg="#2c2c2c")
+    frame_resultado.pack(fill="both", expand=True, pady=(14, 0))
+
+    scrollbar = tk.Scrollbar(frame_resultado)
+    scrollbar.pack(side="right", fill="y")
+
+    texto_resultado = tk.Text(frame_resultado, font=("Courier", 11), state="disabled", yscrollcommand=scrollbar.set, padx=10, pady=8)
+    texto_resultado.pack(fill="both", expand=True)
+    scrollbar.config(command=texto_resultado.yview)
+
+#Funciones de acceso desde la ventana principal
+def analisis_de_números():
+    abrir_ventana_secundaria("Análisis de Números", contenido_analisis)
+
 """
 VENTANA PRINCIPAL
 """
@@ -117,7 +145,7 @@ canva1.image = img  #Para evitar que la imagen se borre
 canva1.create_text(350, 80, text="¡Bienvenido! Elige una de las 3 opciones", font=("Arial", 18, "bold"), fill="white")
 
 #Los botones de la ventana principal
-btn1 = tk.Button(ventana, text="Análisis de números", command=lambda: print("test"), width=18)
+btn1 = tk.Button(ventana, text="Análisis de números", command=analisis_de_números, width=18)
 btn2 = tk.Button(ventana, text="Ficha personal",       command=lambda: print("test"), width=18)
 btn3 = tk.Button(ventana, text="Animación",            command=lambda: print("test"), width=18)
 
