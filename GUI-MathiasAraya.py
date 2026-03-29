@@ -48,6 +48,177 @@ def cerrar_secundaria(win):
     win.destroy()
 
 """
+ANÁLISIS DE NÚMEROS
+"""
+def contenido_analisis(frame):
+#Muestra todos los pares de divisores de el número ingresado
+
+    def encontrar_pares(n, a=1, resultado=None):
+    #Prueba cada divisor 'a' desde 1 hasta n. Si a divide a n, guarda el par (a, n//a) y se evitan duplicados con a <= b
+        if resultado is None:
+            resultado = []
+        if a > n:
+            return resultado
+        if n % a == 0:
+            b = n // a
+            if a <= b:
+                resultado.append((a, b))
+        return encontrar_pares(n, a + 1, resultado)
+
+    def mostrar_pares(pares, i):
+    #Se ejecuta la recursividad y inserta cada par en el widget de texto uno por uno
+        if i >= len(pares):
+            return
+        a, b = pares[i]
+        texto_resultado.insert("end", f"  ({a},  {b})\n")
+        mostrar_pares(pares, i + 1)
+
+    def calcular():
+    #Se valida el número que entra y llama a encontrar_pares para mostrar el resultado
+        texto_resultado.config(state="normal")
+        texto_resultado.delete("1.0", "end")
+
+        entrada = entry_numero.get().strip()
+
+        #Se verifica que sea un número entero válido
+        if not entrada.lstrip("-").isdigit():
+            texto_resultado.insert("end", "¡Error! Debes ingresar un número entero positivo.")
+            texto_resultado.config(state="disabled")
+            return
+
+        n = int(entrada)
+        if n <= 0:
+            texto_resultado.insert("end", "¡Error! Debes ingresar un número entero positivo.")
+            texto_resultado.config(state="disabled")
+            return
+
+        pares = encontrar_pares(n)
+        texto_resultado.insert("end", f"Los pares de {n} son:\n\n")
+        mostrar_pares(pares, 0)
+        texto_resultado.config(state="disabled")
+
+    #Widgets de Analisis de números
+    tk.Label(frame, text="¿Quieres saber los pares de un número?", font=("Arial", 16, "bold"), bg="#2c2c2c", fg="white").pack(pady=(10, 4))
+    tk.Label(frame, text="Ingresa un número entero positivo en el espacio de texto.", font=("Arial", 10), bg="#2c2c2c", fg="#aaaaaa", justify="center").pack(pady=(0, 12))
+
+    frame_entrada = tk.Frame(frame, bg="#2c2c2c")
+    frame_entrada.pack()
+
+    entry_numero = tk.Entry(frame_entrada, font=("Arial", 13), width=10, justify="center", bg="#3d3d3d", fg="white", insertbackground="white", relief="flat")
+    entry_numero.pack(side="left", padx=(0, 10))
+    entry_numero.bind("<Return>", lambda e: calcular())  # Permite calcular con Enter
+
+    tk.Button(frame_entrada, text="Calcular", command=calcular, font=("Arial", 11, "bold"), padx=12, cursor="hand2").pack(side="left")
+
+    #Lugar donde sale el resultado del número ingresado
+    frame_resultado = tk.Frame(frame, bg="#2c2c2c")
+    frame_resultado.pack(fill="both", expand=True, pady=(14, 0))
+
+    scrollbar = tk.Scrollbar(frame_resultado)
+    scrollbar.pack(side="right", fill="y")
+
+    texto_resultado = tk.Text(frame_resultado, font=("Courier", 11), state="disabled", yscrollcommand=scrollbar.set, padx=10, pady=8)
+    texto_resultado.pack(fill="both", expand=True)
+    scrollbar.config(command=texto_resultado.yview)
+
+"""
+FICHA PERSONAL
+"""
+def contenido_ficha(frame):
+#Se muestra la información sobre mi, utilizando pygame para el audio de la cancion y una scrollbar para poder ver toda la info
+
+    #Se le agrega el scrollbar al canvas para poder acceder a toda la información
+    canvas_scroll = tk.Canvas(frame, bg="#2c2c2c", highlightthickness=0)
+    scrollbar = tk.Scrollbar(frame, orient="vertical", command=canvas_scroll.yview)
+    canvas_scroll.configure(yscrollcommand=scrollbar.set)
+    scrollbar.pack(side="right", fill="y")
+    canvas_scroll.pack(side="left", fill="both", expand=True)
+    interior = tk.Frame(canvas_scroll, bg="#2c2c2c")
+    ventana_interior = canvas_scroll.create_window((0, 0), window=interior, anchor="nw")
+
+    def ajustar_scroll(event):
+    #Hacer que la scrollbar siga creciendo si se añaden mas cosas a la ventana
+        canvas_scroll.configure(scrollregion=canvas_scroll.bbox("all"))
+
+    def ajustar_ancho(event):
+    #Hacer que el ancho de la ventana se mantenga y se aproveche hacia abajo el espacio
+        canvas_scroll.itemconfig(ventana_interior, width=event.width)
+
+    interior.bind("<Configure>", ajustar_scroll)
+    canvas_scroll.bind("<Configure>", ajustar_ancho)
+
+    BG      = "#2c2c2c"
+    COLOR_T = "#6fbfe2"  #Color para los títulos
+    COLOR_V = "white"    #Color para los valores
+
+    def seccion(texto):
+    #Se crea el encabezado de la sección
+        tk.Label(interior, text=texto, font=("Arial", 12, "bold"), bg=BG, fg=COLOR_T, anchor="w").pack(fill="x", pady=(14, 2), padx=6)
+
+    def campo(etiqueta, valor):
+    #Muestra una etiqueta y su valor juntos en la misma línea
+        f = tk.Frame(interior, bg=BG)
+        f.pack(fill="x", padx=10, pady=2)
+        tk.Label(f, text=f"{etiqueta}:", font=("Arial", 10, "bold"), bg=BG, fg=COLOR_T, width=10, anchor="w").pack(side="left")
+        tk.Label(f, text=valor, font=("Arial", 10), bg=BG, fg=COLOR_V, anchor="w", wraplength=400, justify="left").pack(side="left")
+
+    def cargar_imagen(ruta, ancho, alto):
+    #Carga una imagen para que salga en la ficha
+        img_raw = tk.PhotoImage(file=ruta)
+        fx = max(1, img_raw.width() // ancho)
+        fy = max(1, img_raw.height() // alto)
+        img_scaled = img_raw.subsample(max(fx, fy, 1))
+        lbl = tk.Label(interior, image=img_scaled, bg=BG)
+        lbl.image = img_scaled  #Para evitar que la imagen no se borre
+        lbl.pack(pady=6)
+
+    #La info personal que va en el canvas
+    tk.Label(interior, text="Nombre:", font=("Arial", 12, "bold", "italic"), bg=BG, fg=COLOR_T).pack(anchor="w", padx=10, pady=(8,0))
+    tk.Label(interior, text="Mathias Araya Gómez", font=("Arial", 12, "italic"), bg=BG, fg="white").pack(anchor="w", padx=20, pady=(0,4))
+
+    tk.Label(interior, text="Carnet:", font=("Arial", 12, "bold", "italic"), bg=BG, fg=COLOR_T).pack(anchor="w", padx=10, pady=(8,0))
+    tk.Label(interior, text="2026100922", font=("Arial", 12, "italic"), bg=BG, fg="white").pack(anchor="w", padx=20, pady=(0,4))
+
+    tk.Label(interior, text="Edad:", font=("Arial", 12, "bold", "italic"), bg=BG, fg=COLOR_T).pack(anchor="w", padx=10, pady=(8,0))
+    tk.Label(interior, text="17 años", font=("Arial", 12, "italic"), bg=BG, fg="white").pack(anchor="w", padx=20, pady=(0,4))
+
+    seccion("Biografía:")
+    tk.Label(interior, text="Soy Mathias, me gusta mucho los videojuegos, tambien el futbol y soy de Saprissa y el Barca, y tambien me gustan los perros.", font=("Arial", 12, "italic"), bg=BG, fg="white", wraplength=480, justify="left").pack(anchor="w", padx=10, pady=4)
+
+    seccion("Lugar donde vivo: Desamparados")
+    cargar_imagen("imagen_lugar.png", 200, 140)
+
+    seccion("Fotografía del programador:")
+    cargar_imagen("foto_mia.png", 140, 160)
+
+    seccion("Artista Favorito: Myke Towers")
+    tk.Label(interior, text="Género:", font=("Arial", 12, "bold", "italic"), bg=BG, fg=COLOR_T).pack(anchor="w", padx=10, pady=(8,0))
+    tk.Label(interior, text="Trap y Reguetón", font=("Arial", 12, "italic"), bg=BG, fg="white").pack(anchor="w", padx=20, pady=(0,4))
+
+    seccion("Fotografía del artista:")
+    cargar_imagen("foto_myke.png", 160, 160)
+
+    seccion("Canción:")
+
+    def reproducir():
+    #Carga y reproduce el archivo de audio por 10 segundos y se desactiva el botón mientras suena y lo reactiva al terminar.
+        pygame.mixer.music.load("cancion.mp3")
+        pygame.mixer.music.play()
+        frame.after(10000, pygame.mixer.music.stop)  # Detiene a los 10 segundos
+        btn_audio.config(text="Reproduciendo...", state="disabled")
+        frame.after(10200, lambda: btn_audio.config(text="Reproducir canción", state="normal"))
+
+    btn_audio = tk.Button(interior, text="Reproducir canción", command=reproducir, font=("Arial", 11, "bold"), padx=14, cursor="hand2")
+    btn_audio.pack(pady=10)
+
+#Funciones de acceso desde la ventana principal
+def analisis_de_números():
+    abrir_ventana_secundaria("Análisis de Números", contenido_analisis)
+
+def ficha_personal():
+    abrir_ventana_secundaria("Ficha Personal", contenido_ficha)
+
+"""
 VENTANA PRINCIPAL
 """
 ventana = tk.Tk()
@@ -67,9 +238,9 @@ canva1.image = img  #Para evitar que la imagen se borre
 canva1.create_text(350, 80, text="¡Bienvenido! Elige una de las 3 opciones", font=("Arial", 18, "bold"), fill="white")
 
 #Los botones de la ventana principal
-btn1 = tk.Button(ventana, text="Análisis de números", command=lambda: print("test"), width=18)
-btn2 = tk.Button(ventana, text="Ficha personal",       command=lambda: print("test"), width=18)
-btn3 = tk.Button(ventana, text="Animación",            command=lambda: print("test"), width=18)
+btn1 = tk.Button(ventana, text="Análisis de números", command=analisis_de_números, width=18)
+btn2 = tk.Button(ventana, text="Ficha personal", command=ficha_personal, width=18)
+btn3 = tk.Button(ventana, text="Animación", command=lambda: print("test"), width=18)
 
 canva1.create_window(175, 400, window=btn1)
 canva1.create_window(350, 400, window=btn2)
