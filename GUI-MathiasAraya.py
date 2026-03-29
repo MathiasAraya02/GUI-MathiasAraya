@@ -211,6 +211,42 @@ def contenido_ficha(frame):
     btn_audio = tk.Button(interior, text="Reproducir canción", command=reproducir, font=("Arial", 11, "bold"), padx=14, cursor="hand2")
     btn_audio.pack(pady=10)
 
+"""
+ANIMACION
+"""
+def contenido_animacion(frame):
+#Anima dos esferas que rebotan dentro del canvas.Tiene una barra donde se puede controlar la velocidad y botón para pausarlo o reanudarlo. Las esferas cambian de dirección al chocar entre si
+    BG = "#2c2c2c"
+
+    #Los datos de cada esfera como la posición, velocidad, radio y color
+    esferas = [{"x": 100, "y": 150, "dx": 4, "dy": 3, "r": 20, "color": "#e94560"},{"x": 300, "y": 200, "dx": -3, "dy": 4, "r": 20, "color": "#6fbfe2"},]
+    animando = [True]  #Para controlar si la animación está corriendo (True) o pausada (False)
+
+    #Un canvas donde las esferas aparezcan y hagan lo que se les definió
+    canvas = tk.Canvas(frame, bg="#1a1a1a", highlightthickness=0)
+    canvas.pack(fill="both", expand=True)
+
+    #Se crea la barra de velocidades y el boton para pausar
+    frame_ctrl = tk.Frame(frame, bg=BG)
+    frame_ctrl.pack(fill="x", pady=(6, 0))
+
+    tk.Label(frame_ctrl, text="Velocidad:", font=("Arial", 10), bg=BG, fg="white").pack(side="left", padx=(0, 6))
+    velocidad = tk.IntVar(value=1)
+    tk.Scale(frame_ctrl, from_=1, to=5, orient="horizontal", variable=velocidad,
+             bg=BG, fg="white", highlightthickness=0, troughcolor="#3d3d3d", length=120).pack(side="left")
+
+    def pausa():
+    #Función para alternar entre pausar y reanudar
+        animando[0] = not animando[0]
+        if animando[0]:
+            btn_pausa.config(text="Pausar")
+            animar()
+        else:
+            btn_pausa.config(text="Reanudar")
+
+    btn_pausa = tk.Button(frame_ctrl, text="Pausar", command=pausa, font=("Arial", 10, "bold"), padx=10, cursor="hand2")
+    btn_pausa.pack(side="left", padx=10)
+
 #Funciones de acceso desde la ventana principal
 def analisis_de_números():
     abrir_ventana_secundaria("Análisis de Números", contenido_analisis)
