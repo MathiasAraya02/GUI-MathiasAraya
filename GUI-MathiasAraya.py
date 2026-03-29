@@ -211,12 +211,100 @@ def contenido_ficha(frame):
     btn_audio = tk.Button(interior, text="Reproducir canción", command=reproducir, font=("Arial", 11, "bold"), padx=14, cursor="hand2")
     btn_audio.pack(pady=10)
 
+"""
+ANIMACION
+"""
+def contenido_animacion(frame):
+#Anima dos esferas que rebotan dentro del canvas.Tiene una barra donde se puede controlar la velocidad y botón para pausarlo o reanudarlo. Las esferas cambian de dirección al chocar entre si
+    BG = "#2c2c2c"
+
+    #Los datos de cada esfera como la posición, velocidad, radio y color
+    esferas = [{"x": 100, "y": 150, "dx": 4, "dy": 3, "r": 20, "color": "#e94560"},{"x": 300, "y": 200, "dx": -3, "dy": 4, "r": 20, "color": "#6fbfe2"},]
+    animando = [True]  #Para controlar si la animación está corriendo (True) o pausada (False)
+
+    #Un canvas donde las esferas aparezcan y hagan lo que se les definió
+    canvas = tk.Canvas(frame, bg="#1a1a1a", highlightthickness=0)
+    canvas.pack(fill="both", expand=True)
+
+    #Se crea la barra de velocidades y el boton para pausar
+    frame_ctrl = tk.Frame(frame, bg=BG)
+    frame_ctrl.pack(fill="x", pady=(6, 0))
+
+    tk.Label(frame_ctrl, text="Velocidad:", font=("Arial", 10), bg=BG, fg="white").pack(side="left", padx=(0, 6))
+    velocidad = tk.IntVar(value=1)
+    tk.Scale(frame_ctrl, from_=1, to=5, orient="horizontal", variable=velocidad,
+             bg=BG, fg="white", highlightthickness=0, troughcolor="#3d3d3d", length=120).pack(side="left")
+
+    def pausa():
+    #Función para alternar entre pausar y reanudar
+        animando[0] = not animando[0]
+        if animando[0]:
+            btn_pausa.config(text="Pausar")
+            animar()
+        else:
+            btn_pausa.config(text="Reanudar")
+
+    btn_pausa = tk.Button(frame_ctrl, text="Pausar", command=pausa, font=("Arial", 10, "bold"), padx=10, cursor="hand2")
+    btn_pausa.pack(side="left", padx=10)
+
+    def revisar_colision_esferas():
+    #Para detectar la colisión entre las dos esferas comparando la distancia entre centros con la suma de sus radios. Si colisionan, intercambian sus velocidades
+        e1, e2 = esferas[0], esferas[1]
+        dx = e2["x"] - e1["x"]
+        dy = e2["y"] - e1["y"]
+        distancia = (dx**2 + dy**2) ** 0.5
+        if distancia < e1["r"] + e2["r"]:
+            e1["dx"], e2["dx"] = e2["dx"], e1["dx"]
+            e1["dy"], e2["dy"] = e2["dy"], e1["dy"]
+
+    def mover_esfera(i, ancho, alto, vel):  
+    #Se mueve cada esfera según su velocidad y la hace rebotar al tocar los bordes del canvas.
+        if i >= len(esferas):
+            return
+        e = esferas[i]
+        e["x"] += e["dx"] * vel
+        e["y"] += e["dy"] * vel
+        if e["x"] - e["r"] <= 0 or e["x"] + e["r"] >= ancho:
+            e["dx"] *= -1  #El rebote horizontal
+        if e["y"] - e["r"] <= 0 or e["y"] + e["r"] >= alto:
+            e["dy"] *= -1  #El rebote vertical
+        mover_esfera(i + 1, ancho, alto, vel)
+
+    def dibujar_esferas(i):
+    #Se dibuja cada esfera en su posición actual
+        if i >= len(esferas):
+            return
+        e = esferas[i]
+        canvas.create_oval(e["x"] - e["r"], e["y"] - e["r"], e["x"] + e["r"], e["y"] + e["r"], fill=e["color"], outline="")
+        dibujar_esferas(i + 1)
+
+    def animar():
+    #El bucle principal de animación: se mueve, revisa colisiones,limpia el canvas y redibuja. Se llama a sí misma cada 60 fps
+        if not animando[0]:
+            return
+        ancho = canvas.winfo_width()
+        alto  = canvas.winfo_height()
+        if ancho < 2 or alto < 2:  #Para que espere a ver que el canvas tenga dimensiones reales
+            frame.after(50, animar)
+            return
+        vel = velocidad.get()
+        mover_esfera(0, ancho, alto, vel)
+        revisar_colision_esferas()
+        canvas.delete("all")
+        dibujar_esferas(0)
+        frame.after(16, animar) #Se programa el siguiente frame
+
+    frame.after(100, animar) #Se espera inicial para que el canvas esté listo
+
 #Funciones de acceso desde la ventana principal
 def analisis_de_números():
     abrir_ventana_secundaria("Análisis de Números", contenido_analisis)
 
 def ficha_personal():
     abrir_ventana_secundaria("Ficha Personal", contenido_ficha)
+
+def animación_bolas():
+    abrir_ventana_secundaria("Animación", contenido_animacion)
 
 """
 VENTANA PRINCIPAL
@@ -240,7 +328,7 @@ canva1.create_text(350, 80, text="¡Bienvenido! Elige una de las 3 opciones", fo
 #Los botones de la ventana principal
 btn1 = tk.Button(ventana, text="Análisis de números", command=analisis_de_números, width=18)
 btn2 = tk.Button(ventana, text="Ficha personal", command=ficha_personal, width=18)
-btn3 = tk.Button(ventana, text="Animación", command=lambda: print("test"), width=18)
+btn3 = tk.Button(ventana, text="Animación", command=animación_bolas, width=18)
 
 canva1.create_window(175, 400, window=btn1)
 canva1.create_window(350, 400, window=btn2)
