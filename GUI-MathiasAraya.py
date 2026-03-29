@@ -172,9 +172,51 @@ def contenido_ficha(frame):
         lbl.image = img_scaled  #Para evitar que la imagen no se borre
         lbl.pack(pady=6)
 
+    #La info personal que va en el canvas
+    tk.Label(interior, text="Nombre:", font=("Arial", 12, "bold", "italic"), bg=BG, fg=COLOR_T).pack(anchor="w", padx=10, pady=(8,0))
+    tk.Label(interior, text="Mathias Araya Gómez", font=("Arial", 12, "italic"), bg=BG, fg="white").pack(anchor="w", padx=20, pady=(0,4))
+
+    tk.Label(interior, text="Carnet:", font=("Arial", 12, "bold", "italic"), bg=BG, fg=COLOR_T).pack(anchor="w", padx=10, pady=(8,0))
+    tk.Label(interior, text="2026100922", font=("Arial", 12, "italic"), bg=BG, fg="white").pack(anchor="w", padx=20, pady=(0,4))
+
+    tk.Label(interior, text="Edad:", font=("Arial", 12, "bold", "italic"), bg=BG, fg=COLOR_T).pack(anchor="w", padx=10, pady=(8,0))
+    tk.Label(interior, text="17 años", font=("Arial", 12, "italic"), bg=BG, fg="white").pack(anchor="w", padx=20, pady=(0,4))
+
+    seccion("Biografía:")
+    tk.Label(interior, text="Soy Mathias, me gusta mucho los videojuegos, tambien el futbol y soy de Saprissa y el Barca, y tambien me gustan los perros.", font=("Arial", 12, "italic"), bg=BG, fg="white", wraplength=480, justify="left").pack(anchor="w", padx=10, pady=4)
+
+    seccion("Lugar donde vivo: Desamparados")
+    cargar_imagen("imagen_lugar.png", 200, 140)
+
+    seccion("Fotografía del programador:")
+    cargar_imagen("foto_mia.png", 140, 160)
+
+    seccion("Artista Favorito: Myke Towers")
+    tk.Label(interior, text="Género:", font=("Arial", 12, "bold", "italic"), bg=BG, fg=COLOR_T).pack(anchor="w", padx=10, pady=(8,0))
+    tk.Label(interior, text="Trap y Reguetón", font=("Arial", 12, "italic"), bg=BG, fg="white").pack(anchor="w", padx=20, pady=(0,4))
+
+    seccion("Fotografía del artista:")
+    cargar_imagen("foto_myke.png", 160, 160)
+
+    seccion("Canción:")
+
+    def reproducir():
+    #Carga y reproduce el archivo de audio por 10 segundos y se desactiva el botón mientras suena y lo reactiva al terminar.
+        pygame.mixer.music.load("cancion.mp3")
+        pygame.mixer.music.play()
+        frame.after(10000, pygame.mixer.music.stop)  # Detiene a los 10 segundos
+        btn_audio.config(text="Reproduciendo...", state="disabled")
+        frame.after(10200, lambda: btn_audio.config(text="Reproducir canción", state="normal"))
+
+    btn_audio = tk.Button(interior, text="Reproducir canción", command=reproducir, font=("Arial", 11, "bold"), padx=14, cursor="hand2")
+    btn_audio.pack(pady=10)
+
 #Funciones de acceso desde la ventana principal
 def analisis_de_números():
     abrir_ventana_secundaria("Análisis de Números", contenido_analisis)
+
+def ficha_personal():
+    abrir_ventana_secundaria("Ficha Personal", contenido_ficha)
 
 """
 VENTANA PRINCIPAL
@@ -197,8 +239,8 @@ canva1.create_text(350, 80, text="¡Bienvenido! Elige una de las 3 opciones", fo
 
 #Los botones de la ventana principal
 btn1 = tk.Button(ventana, text="Análisis de números", command=analisis_de_números, width=18)
-btn2 = tk.Button(ventana, text="Ficha personal",       command=lambda: print("test"), width=18)
-btn3 = tk.Button(ventana, text="Animación",            command=lambda: print("test"), width=18)
+btn2 = tk.Button(ventana, text="Ficha personal", command=ficha_personal, width=18)
+btn3 = tk.Button(ventana, text="Animación", command=lambda: print("test"), width=18)
 
 canva1.create_window(175, 400, window=btn1)
 canva1.create_window(350, 400, window=btn2)
